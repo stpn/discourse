@@ -1,19 +1,18 @@
 /**
   This view handles rendering of a navigation item
 
-  @class NavItemView
-  @extends Discourse.View
+  @class NavigationItemComponent
+  @extends Ember.Component
   @namespace Discourse
   @module Discourse
 **/
-Discourse.NavItemView = Discourse.View.extend({
+Discourse.NavigationItemComponent = Ember.Component.extend({
   tagName: 'li',
   classNameBindings: ['active', 'content.hasIcon:has-icon'],
   attributeBindings: ['title'],
-
   hidden: Em.computed.not('content.visible'),
   shouldRerender: Discourse.View.renderIfChanged('content.count'),
-  active: Discourse.computed.propertyEqual('content.filterMode', 'controller.filterMode'),
+  active: Discourse.computed.propertyEqual('content.filterMode', 'filterMode'),
 
   title: function() {
     var categoryName = this.get('content.categoryName'),
@@ -31,9 +30,7 @@ Discourse.NavItemView = Discourse.View.extend({
   name: function() {
     var categoryName = this.get('content.categoryName'),
         name = this.get('content.name'),
-        extra = {
-          count: this.get('content.count') || 0
-        };
+        extra = { count: this.get('content.count') || 0 };
 
     if (categoryName) {
       name = 'category';
@@ -51,7 +48,4 @@ Discourse.NavItemView = Discourse.View.extend({
     buffer.push(this.get('name'));
     buffer.push("</a>");
   }
-
 });
-
-

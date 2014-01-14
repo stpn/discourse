@@ -43,19 +43,6 @@ Discourse.FilteredListRoute = Discourse.Route.extend({
   },
 });
 
-Discourse.FilteredListRoute.reopenClass({
-  scrollToLastPosition: function() {
-    var scrollPos = Discourse.Session.currentProp('topicListScrollPosition');
-    if (scrollPos) {
-      Em.run.next(function() { $('html, body').scrollTop(scrollPos); });
-      Discourse.Session.currentProp('topicListScrollPosition', null);
-    }
-  }
-});
-
-_.each(Discourse.ListController.FILTERS, function(filter) {
-  Discourse["List" + filter.capitalize() + "Route"] = Discourse.FilteredListRoute.extend({ filter: filter });
-});
 
 _.each(Discourse.TopList.PERIODS, function(period) {
   Discourse["ListTop" + period.capitalize() + "Route"] = Discourse.FilteredListRoute.extend({ filter: "top/" + period });

@@ -14,12 +14,6 @@ Discourse.ListCategoryRoute = Discourse.FilteredListRoute.extend({
     return Discourse.Category.findBySlug(params.slug, params.parentSlug);
   },
 
-  activate: function() {
-    this._super();
-    // Add a search context
-    this.controllerFor('search').set('searchContext', this.modelFor(this.get('routeName')).get('searchContext'));
-  },
-
   setupController: function(controller, category) {
     var listTopicsController = this.controllerFor('listTopics');
     if (listTopicsController) {
@@ -52,21 +46,10 @@ Discourse.ListCategoryRoute = Discourse.FilteredListRoute.extend({
       });
       Discourse.FilteredListRoute.scrollToLastPosition();
     });
-  },
-
-  deactivate: function() {
-    this._super();
-    // Clear the search context
-    this.controllerFor('search').set('searchContext', null);
   }
 });
 
 Discourse.ListCategoryNoneRoute = Discourse.ListCategoryRoute.extend({ noSubcategories: true });
-
-_.each(Discourse.ListController.FILTERS, function(filter) {
-  Discourse["List" + filter.capitalize() + "CategoryRoute"] = Discourse.ListCategoryRoute.extend({ filter: filter });
-  Discourse["List" + filter.capitalize() + "CategoryNoneRoute"] = Discourse.ListCategoryRoute.extend({ filter: filter, noSubcategories: true });
-});
 
 _.each(Discourse.TopList.PERIODS, function(period) {
   Discourse["ListTop" + period.capitalize() + "CategoryRoute"] = Discourse.ListCategoryRoute.extend({ filter: "top/" + period });

@@ -192,7 +192,7 @@ Discourse.URL = Em.Object.createWithMixins({
 
     if (path === "/" && (oldPath === "/" || oldPath === defaultFilter)) {
       // Refresh our list
-      this.controllerFor('list').refresh();
+      this.controllerFor('discoveryTopics').send('refresh');
       return true;
     }
 
