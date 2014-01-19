@@ -106,8 +106,8 @@ end
 namespace :config do
   task :nginx, roles: :app do
     puts "Symlinking your nginx configuration..."
-    sudo "ln -nfs #{release_path}/config/nginx.conf /etc/nginx/sites-enabled/#{application}.conf"
-    sudo "cp #{release_path}/config/nginx.conf /etc/nginx/sites-available/#{application}.conf"
+    sudo "ln -nfs #{current_path}/config/nginx.conf /etc/nginx/sites-enabled/#{application}.conf"
+    sudo "cp #{current_path}/config/nginx.conf /etc/nginx/sites-available/#{application}.conf"
   end
 end
 
