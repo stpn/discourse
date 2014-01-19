@@ -68,7 +68,7 @@ end
 #gem 'redis-rails'
 gem 'hiredis'
 gem 'redis', :require => ["redis", "redis/connection/hiredis"]
-
+gem 'rake'
 gem 'active_model_serializers'
 
 gem 'html_truncator'
@@ -124,7 +124,7 @@ gem 'omniauth-cas'
 gem 'oj'
 # while resolving https://groups.google.com/forum/#!topic/ruby-pg/5_ylGmog1S4
 gem 'pg', '0.15.1'
-gem 'rake'
+
 
 
 gem 'rest-client'
@@ -210,7 +210,7 @@ gem 'rbtrace', require: false, platform: :mri
 gem 'ruby-readability', require: false
 gem 'simple-rss', require: false
 
-gem 'capistrano-bundler'
+#gem 'capistrano-bundler'
 gem 'capistrano'
 gem 'rvm1-capistrano3', require: false
 gem 'capistrano-rails', '~> 1.0.0'

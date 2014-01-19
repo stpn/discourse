@@ -64,7 +64,19 @@ before 'deploy', 'rvm1:install:rvm'
 #set :whenever_command, "bundle exec whenever"
 #require 'sidekiq/capistrano'
 
-
+set :bundle_without, %w{development test}.join(' ')
+set :bundle_roles, :all
+namespace :bundler do
+  desc "Install gems with bundler."
+  task :install do
+    on roles fetch(:bundle_roles) do
+      within release_path do
+        execute :bundle, "install", "--without #{fetch(:bundle_without)}"
+      end
+    end
+  end
+end
+#before 'deploy:updated', 'bundler:install'
 
 namespace :deploy do
 
