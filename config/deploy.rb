@@ -11,7 +11,7 @@
 require 'rvm/capistrano'
 #set :rvm_ruby_string, ENV['GEM_HOME'].gsub(/.*\//,"") 
 set :rvm_type, :user
-set :rvm_ruby_string, '2.0.0-p195'
+set :rvm_ruby_string, '2.0.0-p247'
 
 require 'bundler/capistrano'
 require 'sidekiq/capistrano'
