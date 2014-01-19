@@ -1,107 +1,76 @@
-# set :application, "discourse"
-# set :rvm_type, :user
-
-# # RVM integration
-# # http://beginrescueend.com/integration/capistrano/
-# # $:.unshift(File.expand_path('./lib', ENV['rvm_path']))
-# require 'capistrano/rvm'
-# set :rvm_type, :system                     # Defaults to: :auto
-# set :rvm_ruby_version, '2.0.0-p195'      # Defaults to: 'default'
-# set :rvm_custom_path, '/usr/local/rvm/bin'  # only needed if not detected
-
-# # Bundler integration (bundle install)
-# # http://gembundler.com/deploying.html
-# require "capistrano/bundler"
-
-# set :bundle_without,  [:development, :test]
-# set :user, "admin"
-# set :deploy_to, "/home/admin/discourse"
-# set :use_sudo, true
-
-set :rvm1_ruby_version, "2.0.0-p195"
-
-set :application, "discourse"
-set :scm, :git
-set :repo_url, "git@github.com:stpn/discourse.git"
-set :deploy_to, "/home/admin/discourse"
-set :ssh_options, {:keys => ["/Users/stpn/.ssh/notchServer.pem"] }
+# This is a set of sample deployment recipes for deploying via Capistrano.
+# One of the recipes (deploy:symlink_nginx) assumes you have an nginx configuration
+# file at config/nginx.conf. You can make this easily from the provided sample
+# nginx configuration file.
+#
+# For help deploying via Capistrano, see this thread:
+# http://meta.discourse.org/t/deploy-discourse-to-an-ubuntu-vps-using-capistrano/6353
 
 
-set :log_level, :info
-set :rvm_ruby_string, '2.0.0'
+
+require 'rvm/capistrano'
+#set :rvm_ruby_string, ENV['GEM_HOME'].gsub(/.*\//,"") 
 set :rvm_type, :user
+set :rvm_ruby_string, '2.0.0-p195'
 
-set :branch, 'master'
-set :user, "admin"
+require 'bundler/capistrano'
+require 'sidekiq/capistrano'
+# Repo Settings
+# You should change this to your fork of discourse
+set :repository, 'git@github.com:stpn/discourse.git'
+set :deploy_via, :remote_cache
+set :branch, fetch(:branch, 'master')
+set :scm, :git
+ssh_options[:forward_agent] = true
+
+# General Settings
+set :deploy_type, :deploy
+default_run_options[:pty] = true
+
+# Server Settings
+set :user, 'admin'
 set :use_sudo, false
-set :keep_releases, 2
-set :git_shallow_clone, 1
-set :deploy_via, :copy
+set :rails_env, :production
 
-before 'deploy', 'rvm1:install:rvm' 
+role :app, 'ec2-54-204-10-20.compute-1.amazonaws.com', primary: true
+role :db,  'ec2-54-204-10-20.compute-1.amazonaws.com', primary: true
+role :web, 'ec2-54-204-10-20.compute-1.amazonaws.com', primary: true
 
-# files we want symlinking to specific entries in shared.
-# set :linked_files, %w{config/database.yml config/application.yml}
-
-# which config files should be copied by deploy:setup_config
-# see documentation in lib/capistrano/tasks/setup_config.cap
-# for details of operations
-# set(:config_files, %w(
-#   nginx.conf
-#   application.yml
-#   database.yml
-# ))
-
-# set(:symlinks, [
-#   {
-#     source: "nginx.conf",
-#     link: "/etc/nginx/sites-enabled/#{fetch(:full_app_name)}"
-#   }
-# ])
+# Application Settings
+set :application, 'discourse'
+set :deploy_to, "/home/admin/#{application}"
+ssh_options[:keys] = ["#{ENV['HOME']}/.ssh/notchServer.pem"]
 
 
+# # Perform an initial bundle
+# after "deploy:setup" do
+#   run "cd #{current_path} && bundle install"
+# end
 
-#set :whenever_command, "bundle exec whenever"
-#require 'sidekiq/capistrano'
-
-set :bundle_without, %w{development test}.join(' ')
-set :bundle_roles, :all
-namespace :bundler do
-  desc "Install gems with bundler."
-  task :install do
-    on roles fetch(:bundle_roles) do
-      within release_path do
-        execute :bundle, "install", "--without #{fetch(:bundle_without)}"
-      end
-    end
-  end
-end
-#before 'deploy:updated', 'bundler:install'
-
+# Tasks to start/stop/restart thin
 namespace :deploy do
-
-
-
-  task :start  do
+  desc 'Start thin servers'
+  task :start, :roles => :app, :except => { :no_release => true } do
     run "cd #{current_path} && RUBY_GC_MALLOC_LIMIT=90000000 bundle exec thin -C config/thin.yml start", :pty => false
   end
 
   desc 'Stop thin servers'
-  task :stop  do
+  task :stop, :roles => :app, :except => { :no_release => true } do
     run "cd #{current_path} && bundle exec thin -C config/thin.yml stop"
   end
 
   desc 'Restart thin servers'
-  task :restart do
+  task :restart, :roles => :app, :except => { :no_release => true } do
     run "cd #{current_path} && RUBY_GC_MALLOC_LIMIT=90000000 bundle exec thin -C config/thin.yml restart"
   end
 
-  # Sets up several shared directories for configuration and thin's sockets,
+
+ # Sets up several shared directories for configuration and thin's sockets,
   # as well as uploading your sensitive configuration files to the serer.
   # The uploaded files are ones I've removed from version control since my
   # project is public. This task also symlinks the nginx configuration so, if
   # you change that, re-run this task.
-  task :setup_config  do
+  task :setup_config, roles: :app do
     run  "mkdir -p #{shared_path}/config/initializers"
     run  "mkdir -p #{shared_path}/config/environments"
     run  "mkdir -p #{shared_path}/sockets"
@@ -114,17 +83,29 @@ namespace :deploy do
   end
 
   # Symlinks all of your uploaded configuration files to where they should be.
-  task :symlink_config do
+  task :symlink_config, roles: :app do
     run  "ln -nfs #{shared_path}/config/database.yml #{release_path}/config/database.yml"
     run  "ln -nfs #{shared_path}/config/newrelic.yml #{release_path}/config/newrelic.yml"
     run  "ln -nfs #{shared_path}/config/redis.yml #{release_path}/config/redis.yml"
     run  "ln -nfs #{shared_path}/config/environments/production.rb #{release_path}/config/environments/production.rb"
     run  "ln -nfs #{shared_path}/config/initializers/secret_token.rb #{release_path}/config/initializers/secret_token.rb"
   end
-
+  
 end
 
+# Symlink config/nginx.conf to /etc/nginx/sites-enabled. Make sure to restart
+# nginx so that it picks up the configuration file.
+namespace :config do
+  task :nginx, roles: :app do
+    puts "Symlinking your nginx configuration..."
+    sudo "ln -nfs #{release_path}/config/nginx.conf /etc/nginx/sites-enabled/#{application}"
+  end
+end
 
+after "deploy:setup", "config:nginx"
+
+# Seed your database with the initial production image. Note that the production
+# image assumes an empty, unmigrated database.
 namespace :db do
   desc 'Seed your database for the first time'
   task :seed do
@@ -132,4 +113,5 @@ namespace :db do
   end
 end
 
-#after  'deploy:update_code', 'deploy:migrate'
+# Migrate the database with each deployment
+after  'deploy:update_code', 'deploy:migrate'

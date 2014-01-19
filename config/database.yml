@@ -1,4 +1,6 @@
 development:
+  user: admin
+  password: notchforum
   adapter: postgresql
   database: discourse_development
   min_messages: warning
@@ -15,6 +17,8 @@ development:
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
+  user: admin
+  password: notchforum
   adapter: postgresql
   database: discourse_test
   min_messages: warning
@@ -23,8 +27,20 @@ test:
   host_names:
     - test.localhost
 
+development:
+  user: admin
+  password: notchforum
+  adapter: postgresql
+  database: discourse_production
+  min_messages: warning
+  pool: 5
+  timeout: 5000
+  host_names:
+
 # profile db is used for benchamarking using the script/bench.rb script
 profile:
+  user: admin
+  password: notchforum
   adapter: postgresql
   database: discourse_profile
   min_messages: warning

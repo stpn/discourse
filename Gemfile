@@ -68,7 +68,7 @@ end
 #gem 'redis-rails'
 gem 'hiredis'
 gem 'redis', :require => ["redis", "redis/connection/hiredis"]
-gem 'rake'
+
 gem 'active_model_serializers'
 
 gem 'html_truncator'
@@ -210,11 +210,14 @@ gem 'rbtrace', require: false, platform: :mri
 gem 'ruby-readability', require: false
 gem 'simple-rss', require: false
 
-#gem 'capistrano-bundler'
-gem 'capistrano'
-gem 'rvm1-capistrano3', require: false
-gem 'capistrano-rails', '~> 1.0.0'
 
+gem 'capistrano', '~> 2.15.5'
+gem 'rvm-capistrano'
+#gem 'capistrano-bundler'
+# gem 'capistrano'
+# gem 'rvm1-capistrano3', require: false
+# gem 'capistrano-rails', '~> 1.0.0'
+# gem 'rake'
 # perftools only works on 1.9 atm
 group :profile do
   # travis refuses to install this, instead of fuffing, just avoid it for now
