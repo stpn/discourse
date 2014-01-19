@@ -95,10 +95,19 @@ end
 
 # Symlink config/nginx.conf to /etc/nginx/sites-enabled. Make sure to restart
 # nginx so that it picks up the configuration file.
+# namespace :config do
+#   task :nginx, roles: :app do
+#     puts "Symlinking your nginx configuration..."
+#     sudo "ln -nfs #{release_path}/config/nginx.conf /etc/nginx/sites-enabled/#{application}"
+#   end
+# end
+
+
 namespace :config do
   task :nginx, roles: :app do
     puts "Symlinking your nginx configuration..."
-    sudo "ln -nfs #{release_path}/config/nginx.conf /etc/nginx/sites-enabled/#{application}"
+    sudo "ln -nfs #{release_path}/config/nginx.conf /etc/nginx/sites-enabled/#{application}.conf"
+    sudo "cp #{release_path}/config/nginx.conf /etc/nginx/sites-available/#{application}.conf"
   end
 end
 
