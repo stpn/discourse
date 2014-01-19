@@ -210,9 +210,11 @@ gem 'rbtrace', require: false, platform: :mri
 gem 'ruby-readability', require: false
 gem 'simple-rss', require: false
 
+gem 'capistrano-bundler'
+gem 'capistrano'
+gem 'rvm1-capistrano3', require: false
+gem 'capistrano-rails', '~> 1.0.0'
 
-gem 'capistrano', require: nil
-gem 'capistrano-rbenv', require: nil
 # perftools only works on 1.9 atm
 group :profile do
   # travis refuses to install this, instead of fuffing, just avoid it for now
