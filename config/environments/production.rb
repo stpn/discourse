@@ -34,21 +34,13 @@ Discourse::Application.configure do
 
   if GlobalSetting.smtp_address
     settings = {
-      address:              'connect@wearnotch.com',
+      address:              GlobalSetting.smtp_address,
       port:                 GlobalSetting.smtp_port,
-      domain:               'oxmail.registrar-servers.com',
-      user_name:            'connect@wearnotch.com',
-      password:             'drulio',
+      domain:               GlobalSetting.smtp_domain,
+      user_name:            GlobalSetting.smtp_user_name,
+      password:             GlobalSetting.smtp_password,
       authentication:       GlobalSetting.smtp_authentication,
       enable_starttls_auto: GlobalSetting.smtp_enable_start_tls
-
-      # address:              GlobalSetting.smtp_address,
-      # port:                 GlobalSetting.smtp_port,
-      # domain:               GlobalSetting.smtp_domain,
-      # user_name:            GlobalSetting.smtp_user_name,
-      # password:             GlobalSetting.smtp_password,
-      # authentication:       GlobalSetting.smtp_authentication,
-      # enable_starttls_auto: GlobalSetting.smtp_enable_start_tls
     }
 
     config.action_mailer.smtp_settings = settings.reject{|x,y| y.nil?}
