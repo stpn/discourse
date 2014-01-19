@@ -51,7 +51,7 @@ ssh_options[:keys] = ["#{ENV['HOME']}/.ssh/notchServer.pem"]
 namespace :deploy do
   desc 'Start thin servers'
   task :start, :roles => :app, :except => { :no_release => true } do
-    run "cd #{current_path} && RUBY_GC_MALLOC_LIMIT=90000000 bundle exec thin -C config/thin.yml start", :pty => false
+    run "cd #{current_path} && RUBY_GC_MALLOC_LIMIT=90000000  bundle exec thin -C config/thin.yml start", :pty => false
   end
 
   desc 'Stop thin servers'
@@ -61,7 +61,7 @@ namespace :deploy do
 
   desc 'Restart thin servers'
   task :restart, :roles => :app, :except => { :no_release => true } do
-    run "cd #{current_path} && RUBY_GC_MALLOC_LIMIT=90000000 bundle exec thin -C config/thin.yml restart"
+    run "cd #{current_path} && RUBY_GC_MALLOC_LIMIT=90000000  bundle exec thin -C config/thin.yml restart"
   end
 
 
@@ -90,7 +90,7 @@ namespace :deploy do
     run  "ln -nfs #{shared_path}/config/environments/production.rb #{release_path}/config/environments/production.rb"
     run  "ln -nfs #{shared_path}/config/initializers/secret_token.rb #{release_path}/config/initializers/secret_token.rb"
   end
-  
+
 end
 
 # Symlink config/nginx.conf to /etc/nginx/sites-enabled. Make sure to restart
@@ -111,7 +111,28 @@ namespace :db do
   task :seed do
     run "cd #{current_path} && psql -d discourse_production < pg_dumps/production-image.sql"
   end
+
+      desc "Destroys Production Database"
+    task :drop do
+      puts "\n\n=== Destroying the Production Database! ===\n\n"
+      run "cd #{current_path}; rake db:drop RAILS_ENV=production"
+      system "cap deploy:set_permissions"
+    end
+       task :terminate do
+      puts "\n\n=== terminating connections! ===\n\n"
+      run "cd #{current_path}; rake db:terminate  RAILS_ENV=production"
+
+    end
+
+
+    desc "Create Production Database"
+    task :create do
+      puts "\n\n=== Creating the Production Database! ===\n\n"
+      run "cd #{current_path}; rake db:create RAILS_ENV=production"
+      system "cap deploy:set_permissions"
+    end
 end
 
+
 # Migrate the database with each deployment
-after  'deploy:update_code', 'deploy:migrate'
+# after  'deploy:update_code', 'deploy:migrate'
