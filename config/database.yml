@@ -24,8 +24,8 @@ test:
     - test.localhost
 
 production:
-  user: admin
-  password: notchforum
+  user: ENV["POSTGRES_USER"]
+  password: ENV["POSTGRES_PASSWORD"]
   adapter: postgresql
   database: discourse_production
   min_messages: warning
